@@ -1,6 +1,6 @@
 /**
  * AKH Digital Twin Application Controller Core Engine
- * Manages data interactions, chart states, and cross-filtering into the Speckle Engine
+ * Manages data interactions, chart states, and synchronized color cross-filtering into the Speckle Engine
  */
 
 const baseModelUrl = "https://app.speckle.systems/projects/cdc6ab8d3b/models/f678e2b160?transparent=true";
@@ -23,12 +23,12 @@ const departmentMapping = {
     "INFRA": ["Logistik", "Technik"]
 };
 
-// Domain color definitions matching the enterprise specifications
+// Exact color specifications defined in Part 7.1 of the Enterprise Design Spec
 const domainColors = {
-    "KLINIK": "#2563EB",
-    "PFLEGE": "#16A34A",
-    "INFRA": "#64748B",
-    "VACANT": "#DC2626"
+    "KLINIK": "#2563EB",  // Blue
+    "PFLEGE": "#16A34A",   // Green
+    "INFRA": "#64748B",    // Slate
+    "GHOST": "#E5E7EB"     // Unselected / Light Gray background tint
 };
 
 let activeDomain = "ALL";
@@ -39,12 +39,15 @@ let donutChartInstance = null;
 document.addEventListener("DOMContentLoaded", () => {
     buildLedgerTable(hospitalMockData);
     initChart(hospitalMockData);
+    
+    // Set initial structural coloring after the iframe loads completely
+    iframe.addEventListener("load", () => {
+        applyEnterpriseColorMapping(hospitalMockData);
+    });
 });
 
 function initChart(dataset) {
     const ctx = document.getElementById('akhDonutChart').getContext('2d');
-    
-    // Group and aggregate data processing
     const summary = dataset.reduce((acc, current) => {
         acc[current.domain] = (acc[current.domain] || 0) + current.area;
         return acc;
@@ -56,7 +59,7 @@ function initChart(dataset) {
             labels: Object.keys(summary),
             datasets: [{
                 data: Object.values(summary),
-                backgroundColor: ["#2563EB", "#16A34A", "#64748B"],
+                backgroundColor: [domainColors.KLINIK, domainColors.PFLEGE, domainColors.INFRA],
                 hoverOffset: 6
             }]
         },
@@ -73,7 +76,6 @@ function filterDomain(domainKey) {
     activeDomain = domainKey;
     activeDept = "ALL";
     
-    // UI Visual state toggle updates
     document.querySelectorAll('.domain-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`[data-domain="${domainKey}"]`).classList.add('active');
 
@@ -110,7 +112,7 @@ function filterDepartment(deptName, element) {
     executeCrossFilter(filtered);
 }
 
-// 4. Synchronization and Cross-Filtering out to the Speckle Visual
+// 4. Synchronization and Color Filtering Interaction State
 function executeCrossFilter(filteredData) {
     buildLedgerTable(filteredData);
     updateChartData(filteredData);
@@ -119,17 +121,52 @@ function executeCrossFilter(filteredData) {
     const statusPanel = document.getElementById('viewer-status');
     
     if (activeDomain === "ALL") {
-        iframe.src = baseModelUrl;
+        // Reset view to default state with full colors intact
+        applyEnterpriseColorMapping(hospitalMockData);
         statusPanel.innerText = `Status: Gesamtes Krankenhaus geladen | 312 Räume sichtbar`;
     } else {
-        // Appends Speckle operational metadata string properties dynamically
-        // Note: Map "property" string to match your internal Revit parameter mapping key
-        let filterProperty = "parameters.KSTCode";
-        let targetValue = filteredData[0]?.kst || "";
-
-        iframe.src = `${baseModelUrl}&filter=[{"property":"${filterProperty}","operator":"=","value":"${targetValue}"}]&isolate=true`;
-        statusPanel.innerText = `Status: Gefiltert auf Bereich ${activeDomain} -> ${activeDept}. ${filteredData.length} Räume isoliert.`;
+        // Enforce structural coloring and ghost out unselected elements
+        applyEnterpriseColorMapping(filteredData, true);
+        statusPanel.innerText = `Status: Gefiltert auf Bereich ${activeDomain} -> ${activeDept}. ${filteredData.length} Räume farblich hervorgehoben.`;
     }
+}
+
+/**
+ * 5. Speckle 3D Engine Interoperability Rule Layer
+ * Maps Hex Codes to specific metadata attributes cleanly via dynamic URL Query Filters
+ */
+function applyEnterpriseColorMapping(visibleRooms, isFilteringMode = false) {
+    if (visibleRooms.length === 0) return;
+
+    let targetQueryUrl = baseModelUrl;
+
+    if (!isFilteringMode) {
+        // Scenario A: Page Load / Reset state - color map every category group concurrently
+        const colorFilters = [
+            { property: "parameters.KSTCode", operator: "=", value: "95200", color: domainColors.KLINIK },
+            { property: "parameters.KSTCode", operator: "=", value: "92570", color: domainColors.KLINIK },
+            { property: "parameters.KSTCode", operator: "=", value: "81000", color: domainColors.PFLEGE },
+            { property: "parameters.KSTCode", operator: "=", value: "90010", color: domainColors.INFRA }
+        ];
+        targetQueryUrl += `&filter=${JSON.stringify(colorFilters)}`;
+    } else {
+        // Scenario B: Active selection state - highlight target elements and force everything else to a distinct 'ghost' shadow state
+        const activeKstList = [...new Set(visibleRooms.map(item => item.kst))];
+        const activeColor = domainColors[activeDomain] || domainColors.KLINIK;
+
+        // Build precise parameter query array targeting active cost centers
+        const selectionFilters = activeKstList.map(kstCode => ({
+            property: "parameters.KSTCode",
+            operator: "=",
+            value: kstCode,
+            color: activeColor
+        }));
+
+        targetQueryUrl += `&filter=${JSON.stringify(selectionFilters)}&isolate=true`;
+    }
+
+    // Hot-reload the iframe with structural parameters intact to eliminate asynchronous delays
+    iframe.src = targetQueryUrl;
 }
 
 function buildLedgerTable(data) {
@@ -139,19 +176,23 @@ function buildLedgerTable(data) {
     data.forEach(room => {
         const row = document.createElement('tr');
         row.className = "ledger-row";
-        row.onclick = () => selectIndividualRoom(room.id);
+        row.onclick = () => selectIndividualRoom(room.id, room.domain);
         row.innerHTML = `
             <td><strong>${room.id}</strong></td>
             <td>${room.name}</td>
-            <td><span class="table-tag">${room.kst}</span></td>
+            <td><span class="table-tag" style="border-left: 3px solid ${domainColors[room.domain]}">${room.kst}</span></td>
             <td>${room.area} m²</td>
         `;
         tbody.appendChild(row);
     });
 }
 
-function selectIndividualRoom(roomId) {
-    iframe.src = `${baseModelUrl}&filter=[{"property":"id","operator":"=","value":"${roomId}"}]&isolate=true`;
+function selectIndividualRoom(roomId, domainKey) {
+    const activeColor = domainColors[domainKey];
+    // Focus, pulse color, and zoom bounding box straight to single selected item
+    const singleElementFilter = [{ property: "id", operator: "=", value: roomId, color: activeColor }];
+    iframe.src = `${baseModelUrl}&filter=${JSON.stringify(singleElementFilter)}&isolate=true`;
+    
     document.getElementById('viewer-status').innerText = `Fokus auf Einzelobjekt: RaumID ${roomId}`;
 }
 
