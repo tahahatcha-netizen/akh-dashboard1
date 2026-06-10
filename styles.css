@@ -1,0 +1,157 @@
+/* * AKH Corporate Typography and Global Visual Design Language Sheet
+ * Enforces strict information hierarchies and WCAG AA contrast configurations 
+ */
+
+:root {
+    --primary-blue: #1E40AF;
+    --secondary-blue: #2563EB;
+    --success-green: #16A34A;
+    --warning-amber: #D97706;
+    --alert-red: #DC2626;
+    --neutral-slate: #64748B;
+    --bg-light: #F8FAFC;
+    --card-surface: #FFFFFF;
+    --text-main: #0F172A;
+    --border-light: #E2E8F0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    overflow: hidden;
+}
+
+/* 1. Header KPI Strip */
+.kpi-ribbon {
+    height: 90px;
+    background-color: #0F172A;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 2px solid var(--primary-blue);
+    z-shadow: 10;
+}
+
+.brand-block { display: flex; align-items: center; gap: 16px; }
+.logo-placeholder { background: var(--primary-blue); padding: 8px 12px; border-radius: 4px; font-weight: bold; font-size: 1.1rem; border: 1px solid #3b82f6; }
+.brand-text h1 { font-size: 1.2rem; font-weight: 600; letter-spacing: 0.5px; }
+.brand-text .subtitle { font-size: 0.8rem; color: #94a3b8; margin-top: 2px; }
+
+.kpi-container { display: flex; gap: 16px; height: 70%; }
+.kpi-card { background: #1E293B; border-left: 4px solid var(--secondary-blue); padding: 8px 18px; border-radius: 6px; min-width: 120px; display: flex; flex-direction: column; justify-content: center; }
+.kpi-val { font-size: 1.35rem; font-weight: 300; color: #38bdf8; }
+.kpi-label { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px; }
+
+.kpi-card.alert-triggered { border-left-color: var(--alert-red); background: #451a1a; }
+.kpi-card.alert-triggered .kpi-val { color: #fca5a5; font-weight: 600; }
+
+/* 2. Content Layout Blueprint Splitting */
+.dashboard-workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.viewer-viewport {
+    flex: 6.5;
+    position: relative;
+    height: 100%;
+    background-color: #E2E8F0;
+}
+
+iframe { width: 100%; height: 100%; border: none; }
+
+.status-bar {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(15, 23, 42, 0.9);
+    color: #f8fafc;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    border: 1px solid #334155;
+    pointer-events: none;
+}
+
+/* 3. Right Sidebar Control Panel Workspace */
+.control-desk {
+    flex: 3.5;
+    background: var(--card-surface);
+    border-left: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.section-container {
+    margin-bottom: 20px;
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--neutral-slate);
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 6px;
+}
+
+/* 4. Tier Navigation Interactive Buttons */
+.domain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.domain-btn {
+    background: var(--card-surface);
+    border: 1px solid var(--border-light);
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.15s ease;
+}
+.domain-btn:hover { border-color: var(--secondary-blue); background: #f0fdf4; }
+.domain-btn.active { border-color: var(--primary-blue); background: #eff6ff; box-shadow: inset 0 0 0 1px var(--primary-blue); }
+.domain-btn .btn-name { font-weight: 600; font-size: 0.85rem; color: var(--text-main); }
+.domain-btn .btn-meta { font-size: 0.7rem; color: var(--neutral-slate); margin-top: 4px; }
+
+.pill-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.pill-btn { background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.pill-btn.active { background: var(--primary-blue); color: white; }
+
+.hidden { display: none !important; }
+
+/* 5. Visualization Graphics Sizing Wrapper */
+.chart-box { position: relative; width: 100%; height: 160px; }
+
+/* 6. High-Density BIM Ledger Data Grid */
+.table-wrapper { max-height: 180px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px; background: white; }
+.ledger-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left; }
+.ledger-table th { position: sticky; top: 0; background: #f1f5f9; padding: 8px; font-weight: 600; color: var(--neutral-slate); z-index: 1; border-bottom: 1px solid var(--border-light); }
+.ledger-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
+.ledger-row { cursor: pointer; transition: background 0.1s; }
+.ledger-row:hover { background: #f0fdf4; }
+
+.table-tag { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; }
+.reset-action-btn { margin-top: auto; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; text-align: center; }
+.reset-action-btn:hover { background: var(--primary-blue); }
