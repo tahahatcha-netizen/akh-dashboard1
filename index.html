@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKH Digital Twin — Flächenmanagement</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header class="kpi-ribbon">
+        <div class="brand-block">
+            <span class="logo-placeholder">AKH</span>
+            <div class="brand-text">
+                <h1>DIGITAL TWIN — FLÄCHENMANAGEMENT</h1>
+                <p class="subtitle">Albertinen Krankenhaus · Live Dashboard Context</p>
+            </div>
+        </div>
+        
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-val">69.990 m²</div>
+                <div class="kpi-label">Gesamtfläche</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-val" id="kpi-occupied">52.420 m²</div>
+                <div class="kpi-label">Belegt</div>
+            </div>
+            <div class="kpi-card alert-state" id="kpi-vacancy-card">
+                <div class="kpi-val" id="kpi-vacancy">17.570 m²</div>
+                <div class="kpi-label">Leerstand</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-val">312</div>
+                <div class="kpi-label">Räume</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-workspace">
+        
+        <section class="viewer-viewport">
+            <iframe id="speckle-iframe" src="https://app.speckle.systems/projects/cdc6ab8d3b/models/f678e2b160?transparent=true" allowfullscreen></iframe>
+            <div class="status-bar" id="viewer-status">
+                Status: Gesamtes Krankenhaus geladen | 312 Räume sichtbar
+            </div>
+        </section>
+
+        <aside class="control-desk">
+            
+            <div class="section-container">
+                <h2 class="section-title">1. Unternehmensbereich (Domain Selection)</h2>
+                <div class="domain-grid">
+                    <button class="domain-btn active" data-domain="ALL" onclick="filterDomain('ALL')">
+                        <span class="btn-name">Alle Domains</span>
+                        <span class="btn-meta">69.990 m² · 148 KST</span>
+                    </button>
+                    <button class="domain-btn" data-domain="KLINIK" onclick="filterDomain('KLINIK')">
+                        <span class="btn-name">Kliniken</span>
+                        <span class="btn-meta">38.400 m² · 62 KST</span>
+                    </button>
+                    <button class="domain-btn" data-domain="PFLEGE" onclick="filterDomain('PFLEGE')">
+                        <span class="btn-name">Pflege</span>
+                        <span class="btn-meta">12.200 m² · 30 KST</span>
+                    </button>
+                    <button class="domain-btn" data-domain="INFRA" onclick="filterDomain('INFRA')">
+                        <span class="btn-name">Infrastruktur</span>
+                        <span class="btn-meta">8.500 m² · 22 KST</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-container hidden" id="department-section">
+                <h2 class="section-title">2. Fachbereich (Department)</h2>
+                <div class="pill-strip" id="department-pill-box">
+                    </div>
+            </div>
+
+            <div class="section-container">
+                <h2 class="section-title">Flächenaufteilung des Kontextes</h2>
+                <div class="chart-box">
+                    <canvas id="akhDonutChart"></canvas>
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h2 class="section-title">Zugeordnete Räume (BIM-Ledger)</h2>
+                <div class="table-wrapper">
+                    <table class="ledger-table" id="ledger-table">
+                        <thead>
+                            <tr>
+                                <th>RaumID</th>
+                                <th>Name / Typ</th>
+                                <th>KST</th>
+                                <th>Fläche</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <button class="reset-action-btn" onclick="globalReset()">Globale Filter zurücksetzen</button>
+        </aside>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
