@@ -3,108 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKH Digital Twin — Flächenmanagement</title>
+    <title>AKH Digital Twin — Flächenmanagement Cockpit</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
     <header class="kpi-ribbon">
         <div class="brand-block">
-            <span class="logo-placeholder">AKH</span>
+            <div class="logo-box">AKH</div>
             <div class="brand-text">
-                <h1>DIGITAL TWIN — FLÄCHENMANAGEMENT</h1>
-                <p class="subtitle">Albertinen Krankenhaus · Live Dashboard Context</p>
+                <h1>DIGITAL TWIN — UNTERNEHMENSANALYSE</h1>
+                <p class="subtitle">Albertinen Krankenhaus · Strategisches Flächenmanagement v1.0</p>
             </div>
         </div>
+
+        <nav class="report-pages-nav">
+            <button class="nav-tab active" data-page="p1" onclick="switchPage('p1')"><i class="fa-solid fa-chart-line"></i> Overview</button>
+            <button class="nav-tab" data-page="p2" onclick="switchPage('p2')"><i class="fa-solid fa-cube"></i> BIM Analysis</button>
+            <button class="nav-tab" data-page="p3" onclick="switchPage('p3')"><i class="fa-solid fa-sitemap"></i> Organisation</button>
+            <button class="nav-tab" data-page="p4" onclick="switchPage('p4')"><i class="fa-solid fa-gears"></i> Facility Mgmt</button>
+            <button class="nav-tab" data-page="p5" onclick="switchPage('p5')"><i class="fa-solid fa-users-viewfinder"></i> Dept Dive</button>
+            <button class="nav-tab" data-page="p6" onclick="switchPage('p6')"><i class="fa-solid fa-list-check"></i> Room Explorer</button>
+        </nav>
         
         <div class="kpi-container">
             <div class="kpi-card">
-                <div class="kpi-val">69.990 m²</div>
+                <div class="kpi-val" id="global-kpi-total">69.990 m²</div>
                 <div class="kpi-label">Gesamtfläche</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-val" id="kpi-occupied">52.420 m²</div>
-                <div class="kpi-label">Belegt</div>
+                <div class="kpi-val" id="global-kpi-occupied">52.420 m²</div>
+                <div class="kpi-label">Belegte Fläche</div>
             </div>
-            <div class="kpi-card alert-state" id="kpi-vacancy-card">
-                <div class="kpi-val" id="kpi-vacancy">17.570 m²</div>
+            <div class="kpi-card" id="kpi-vacancy-wrapper">
+                <div class="kpi-val" id="global-kpi-vacant">17.570 m²</div>
                 <div class="kpi-label">Leerstand</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-val">312</div>
-                <div class="kpi-label">Räume</div>
+                <div class="kpi-val" id="global-kpi-cost">€18,40</div>
+                <div class="kpi-label">Kosten / m²</div>
             </div>
         </div>
     </header>
 
-    <main class="dashboard-workspace">
+    <div class="app-layout">
         
-        <section class="viewer-viewport">
-            <iframe id="speckle-iframe" src="https://app.speckle.systems/projects/cdc6ab8d3b/models/f678e2b160?transparent=true" allowfullscreen></iframe>
-            <div class="status-bar" id="viewer-status">
-                Status: Gesamtes Krankenhaus geladen | 312 Räume sichtbar
+        <aside class="tier1-sidebar">
+            <div class="sidebar-headline">DOMAINS (TIER 1)</div>
+            <div class="domain-vertical-stack">
+                <button class="domain-btn active" data-domain="ALL" onclick="selectTier1Domain('ALL')">
+                    <div class="domain-btn-header"><i class="fa-solid fa-hospital-user"></i> <span>Krankenhaus Gesamt</span></div>
+                    <div class="domain-btn-meta">69.990 m² · 148 KST</div>
+                </button>
+                <button class="domain-btn" data-domain="KLINIK" onclick="selectTier1Domain('KLINIK')">
+                    <div class="domain-btn-header" style="color:#2563EB"><i class="fa-solid fa-stethoscope"></i> <span>Kliniken</span></div>
+                    <div class="domain-btn-meta">38.400 m² · 62 KST</div>
+                </button>
+                <button class="domain-btn" data-domain="PFLEGE" onclick="selectTier1Domain('PFLEGE')">
+                    <div class="domain-btn-header" style="color:#16A34A"><i class="fa-solid fa-user-nurse"></i> <span>Pflege</span></div>
+                    <div class="domain-btn-meta">12.200 m² · 30 KST</div>
+                </button>
+                <button class="domain-btn" data-domain="AERZTL" onclick="selectTier1Domain('AERZTL')">
+                    <div class="domain-btn-header" style="color:#9333EA"><i class="fa-solid fa-user-doctor"></i> <span>Ärztl. Direktion</span></div>
+                    <div class="domain-btn-meta">4.100 m² · 8 KST</div>
+                </button>
+                <button class="domain-btn" data-domain="GB" onclick="selectTier1Domain('GB')">
+                    <div class="domain-btn-header" style="color:#EA580C"><i class="fa-solid fa-briefcase"></i> <span>Geschäftsbereiche</span></div>
+                    <div class="domain-btn-meta">6.200 m² · 20 KST</div>
+                </button>
+                <button class="domain-btn" data-domain="INFRA" onclick="selectTier1Domain('INFRA')">
+                    <div class="domain-btn-header" style="color:#64748B"><i class="fa-solid fa-building-shield"></i> <span>Infrastruktur</span></div>
+                    <div class="domain-btn-meta">8.500 m² · 22 KST</div>
+                </button>
+                <button class="domain-btn" data-domain="SCHULE" onclick="selectTier1Domain('SCHULE')">
+                    <div class="domain-btn-header" style="color:#D97706"><i class="fa-solid fa-graduation-cap"></i> <span>Schulen</span></div>
+                    <div class="domain-btn-meta">600 m² · 6 KST</div>
+                </button>
             </div>
-        </section>
-
-        <aside class="control-desk">
             
-            <div class="section-container">
-                <h2 class="section-title">1. Unternehmensbereich (Domain Selection)</h2>
-                <div class="domain-grid">
-                    <button class="domain-btn active" data-domain="ALL" onclick="filterDomain('ALL')">
-                        <span class="btn-name">Alle Domains</span>
-                        <span class="btn-meta">69.990 m² · 148 KST</span>
-                    </button>
-                    <button class="domain-btn" data-domain="KLINIK" onclick="filterDomain('KLINIK')">
-                        <span class="btn-name">Kliniken</span>
-                        <span class="btn-meta">38.400 m² · 62 KST</span>
-                    </button>
-                    <button class="domain-btn" data-domain="PFLEGE" onclick="filterDomain('PFLEGE')">
-                        <span class="btn-name">Pflege</span>
-                        <span class="btn-meta">12.200 m² · 30 KST</span>
-                    </button>
-                    <button class="domain-btn" data-domain="INFRA" onclick="filterDomain('INFRA')">
-                        <span class="btn-name">Infrastruktur</span>
-                        <span class="btn-meta">8.500 m² · 22 KST</span>
-                    </button>
+            <div class="cascading-selectors">
+                <div class="selector-group hidden" id="t2-wrapper">
+                    <label class="slicer-label">FACHBEREICH (TIER 2)</label>
+                    <div class="pill-container" id="t2-pillbox"></div>
                 </div>
-            </div>
-
-            <div class="section-container hidden" id="department-section">
-                <h2 class="section-title">2. Fachbereich (Department)</h2>
-                <div class="pill-strip" id="department-pill-box">
-                    </div>
-            </div>
-
-            <div class="section-container">
-                <h2 class="section-title">Flächenaufteilung des Kontextes</h2>
-                <div class="chart-box">
-                    <canvas id="akhDonutChart"></canvas>
-                </div>
-            </div>
-
-            <div class="section-container">
-                <h2 class="section-title">Zugeordnete Räume (BIM-Ledger)</h2>
-                <div class="table-wrapper">
-                    <table class="ledger-table" id="ledger-table">
-                        <thead>
-                            <tr>
-                                <th>RaumID</th>
-                                <th>Name / Typ</th>
-                                <th>KST</th>
-                                <th>Fläche</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledger-body">
-                            </tbody>
-                    </table>
+                <div class="selector-group hidden" id="t3-wrapper">
+                    <label class="slicer-label">KOSTENSTELLE (TIER 3)</label>
+                    <select class="custom-select-box" id="t3-dropdown" onchange="selectTier3KST()"></select>
                 </div>
             </div>
             
-            <button class="reset-action-btn" onclick="globalReset()">Globale Filter zurücksetzen</button>
+            <button class="global-reset-btn" onclick="executeGlobalReset()"><i class="fa-solid fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
         </aside>
-    </main>
+
+        <main class="workspace-canvas">
+            
+            <section class="report-page visible" id="page-p1">
+                <div class="grid-container grid-2x2">
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-chart-bar"></i> Flächenallokation nach Gebäude (m²)</h3>
+                        <div class="chart-wrapper"><canvas id="p1-buildingChart"></canvas></div>
+                    </div>
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-layer-group"></i> Flächennutzungsintensität nach Etage</h3>
+                        <div class="chart-wrapper"><canvas id="p1-floorHeatmap"></canvas></div>
+                    </div>
+                    <div class="visual-card grid-span-2">
+                        <h3><i class="fa-solid fa-chart-line"></i> Kostenentwicklung vs. Budget Benchmark Trend (€/m² MoM)</h3>
+                        <div class="chart-wrapper"><canvas id="p1-costTrendChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="report-page" id="page-p2">
+                <div class="bim-split-layout">
+                    <div class="bim-viewer-panel">
+                        <iframe id="speckle-iframe" src="https://app.speckle.systems/projects/cdc6ab8d3b/models/f678e2b160?transparent=true"></iframe>
+                        <div class="bim-status-indicator" id="bim-log-panel">Speckle 3D Engine: Bereit · Modellsynchronisation aktiv</div>
+                    </div>
+                    <div class="bim-context-panel">
+                        <div class="visual-card mb-15">
+                            <h3><i class="fa-solid fa-circle-info"></i> Ausgewählter Kontext</h3>
+                            <div class="meta-data-readout">
+                                <p><strong>KST Fokus:</strong> <span id="p2-ctx-kst">-</span></p>
+                                <p><strong>Flächengröße:</strong> <span id="p2-ctx-area">-</span></p>
+                                <p><strong>Auslastung Rate:</strong> <span id="p2-ctx-util">-</span></p>
+                                <p><strong>Kostenvolumen:</strong> <span id="p2-ctx-cost">-</span></p>
+                            </div>
+                        </div>
+                        <div class="visual-card flex-grow">
+                            <h3><i class="fa-solid fa-building-un"></i> Zugeordnete Raumelemente</h3>
+                            <div class="table-container">
+                                <table class="interactive-grid">
+                                    <thead><tr><th>RaumID</th><th>Bezeichnung</th><th>Typ</th><th>Fläche</th></tr></thead>
+                                    <tbody id="p2-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="report-page" id="page-p3">
+                <div class="grid-container grid-1x2">
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-chart-pie"></i> Struktureller Flächenanteil je Kostenstelle (%)</h3>
+                        <div class="chart-wrapper"><canvas id="p3-treemapChart"></canvas></div>
+                    </div>
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-scale-unbalanced"></i> Budgetabweichung Kostenstellen (KST Soll/Ist-Vergleich)</h3>
+                        <div class="chart-wrapper"><canvas id="p3-varianceChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="report-page" id="page-p4">
+                <div class="grid-container grid-2x2">
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Raumstatus-Übersicht (Belegungsquote)</h3>
+                        <div class="chart-wrapper"><canvas id="p4-occupancyChart"></canvas></div>
+                    </div>
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-bolt"></i> Energiekosten nach Liegenschaftszone (€/Mo)</h3>
+                        <div class="chart-wrapper"><canvas id="p4-energyChart"></canvas></div>
+                    </div>
+                    <div class="visual-card grid-span-2">
+                        <h3><i class="fa-solid fa-calendar-days"></i> Wartungsmatrix & Betriebstechnischer Inspektionskalender</h3>
+                        <div class="table-container">
+                            <table class="interactive-grid dense-grid">
+                                <thead><tr><th>Liegenschaft</th><th>Gewerk</th><th>Jan</th><th>Feb</th><th>Mrz</th><th>Apr</th><th>Mai</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Okt</th></tr></thead>
+                                <tbody>
+                                    <tr><td><strong>Hauptgebäude</strong></td><td>Kälte/Klima</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-alert">FÄLLIG</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td></tr>
+                                    <tr><td><strong>Gebäude B</strong></td><td>Medizingase</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-critical">VERSPÄTET</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td></tr>
+                                    <tr><td><strong>Gebäude C</strong></td><td>Brandschutz</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-ok">OK</td><td class="status-alert">FÄLLIG</td><td class="status-ok">OK</td><td class="status-ok">OK</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="report-page" id="page-p5">
+                <div class="grid-container grid-2x2">
+                    <div class="visual-card grid-span-2">
+                        <h3><i class="fa-solid fa-chart-scatter"></i> Effizienzkennmatrix (Raumauslastung % vs. Flächengröße in m²)</h3>
+                        <div class="chart-wrapper"><canvas id="p5-scatterChart"></canvas></div>
+                    </div>
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Auslastungstrend im Zeitverlauf vs. Benchmark</h3>
+                        <div class="chart-wrapper"><canvas id="p5-utilTrendChart"></canvas></div>
+                    </div>
+                    <div class="visual-card">
+                        <h3><i class="fa-solid fa-building-lock"></i> Kritische Raumleerstandskosten Analyse (€)</h3>
+                        <div class="chart-wrapper"><canvas id="p5-vacancyCostChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="report-page" id="page-p6">
+                <div class="visual-card flex-grow h-100 flex-column">
+                    <div class="explorer-toolbar-header">
+                        <div class="search-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="p6-search" placeholder="Raumnummer oder Bezeichnung durchsuchen..." oninput="executeRoomRegistrySearch()">
+                        </div>
+                        <div class="action-export-group">
+                            <button class="btn-action" onclick="alert('CSV Export erfolgreich initiiert.')"><i class="fa-solid fa-file-csv"></i> CSV Export</button>
+                            <button class="btn-action" onclick="alert('PDF Reporting Template generiert.')"><i class="fa-solid fa-file-pdf"></i> PDF Export</button>
+                        </div>
+                    </div>
+                    <div class="table-container explorer-table-height">
+                        <table class="interactive-grid">
+                            <thead>
+                                <tr><th>RaumID</th><th>Raumname</th><th>Gebäude</th><th>Etage</th><th>Typ</th><th>Fläche</th><th>KST Code</th><th>Status</th><th>Kosten/m²</th></tr>
+                            </thead>
+                            <tbody id="p6-explorer-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
 
     <script src="app.js"></script>
 </body>
